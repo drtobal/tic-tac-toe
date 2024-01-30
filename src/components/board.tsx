@@ -1,29 +1,57 @@
 import { BOARD_SIZE } from "@/constants";
-import { addMarkAt, checkBoardFull, checkWin, generateBoard, toggleMove } from "@/methods";
+import { addMarkAt, checkBoardFull, checkWin, cpuPlay, generateBoard, toggleTurn } from "@/methods";
 import { Board, PositionType, Turn } from "@/types";
 import { useState } from "react";
 import Position from './position';
 
+const USER_PLAYER = 0;
+
+const START_PLAYER = 0;
+
 export default function Board() {
     const [board, setBoard] = useState<Board>(generateBoard(BOARD_SIZE));
 
-    const [turn, setTurn] = useState<Turn>(0);
+    const [turn, setTurn] = useState<Turn>(START_PLAYER);
 
     const [isBoardFull, setIsBoardFull] = useState<boolean>(false);
 
     const [winner, setWinner] = useState<PositionType>(null);
 
-    const play = (column: number, row: number): void => {
+    const playCpu = (turn: Turn): null => {
+        if (isBoardFull || turn === USER_PLAYER) return null;
+
+        const cpu = cpuPlay(board, turn, BOARD_SIZE);
+        setBoard([...cpu.board]);
+        setIsBoardFull(checkBoardFull(cpu.board, BOARD_SIZE));
+        setTurn(toggleTurn(turn));
+
+        console.log(cpu);
+
+        if (cpu.winner) {
+            setWinner(turn);
+        }
+
+        return null;
+    }
+
+    const play = (column: number, row: number): null => {
+        if (isBoardFull) return null;
+
         const result = addMarkAt(board, column, row, turn);
         if (result.moved) {
-            setTurn(toggleMove(turn));
             setBoard([...result.board]);
             setIsBoardFull(checkBoardFull(result.board, BOARD_SIZE));
+            const newTurn = toggleTurn(turn);
+            setTurn(newTurn);
 
-            if (turn !== null && checkWin(result.board, BOARD_SIZE, column, row, turn)) {
+            if (checkWin(result.board, BOARD_SIZE, column, row, turn)) {
                 setWinner(turn);
             }
+
+            setTimeout(() => playCpu(newTurn), 50);
         }
+
+        return null;
     };
 
     return (
@@ -42,6 +70,8 @@ export default function Board() {
                     </div>)}
                 </div>)}
             </div>
+
+            <p>Winner: {winner}</p>
         </div>
     );
 }

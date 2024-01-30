@@ -26,9 +26,113 @@ body {
   }
 }
 
+.board-container {
+  position: relative;
+  width: 12rem;
+  height: 12rem;
+  margin: auto;
+}
+
+.board-container__background-column,
+.board-container__background-row {
+  display: flex;
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.board-container__background-column {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-evenly;
+}
+
+.board-container__background-row {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-evenly;
+  flex-direction: column;
+}
+
+.board-container__column-separator {
+  width: 1px;
+  height: 100%;
+  background-color: black;
+}
+
+.board-container__row-separator {
+  width: 100%;
+  height: 1px;
+  background-color: black;
+}
+
 .board {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-around;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
 }
 
 .board__column {
   display: flex;
+  align-items: center;
+  justify-content: space-around;
+  flex-direction: column;
+}
+
+.mark {
+  width: 3rem;
+  height: 3rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mark-x,
+.mark-o {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mark-x {
+
+}
+
+.mark-o {
+
+}
+
+.mark-o__circle {
+  width: 90%;
+  height: 90%;
+  border-radius: 100%;
+  border: 3px solid black;
+}
+
+.mark-x__line-first,
+.mark-x__line-second {
+  width: 100%;
+  height: 3px;
+  background-color: black;
+  position: absolute;
+}
+
+.mark-x__line-first {
+  transform: rotateZ(45deg);
+}
+
+.mark-x__line-second {
+  transform: rotateZ(-45deg);
 }

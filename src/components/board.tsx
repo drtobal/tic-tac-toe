@@ -1,6 +1,6 @@
 import { BOARD_SIZE } from "@/constants";
-import { addMarkAt, generateBoard, toggleMove } from "@/methods";
-import { Board, Turn } from "@/types";
+import { addMarkAt, checkBoardFull, checkWin, generateBoard, toggleMove } from "@/methods";
+import { Board, PositionType, Turn } from "@/types";
 import { useState } from "react";
 import Position from './position';
 
@@ -9,11 +9,20 @@ export default function Board() {
 
     const [turn, setTurn] = useState<Turn>(0);
 
+    const [isBoardFull, setIsBoardFull] = useState<boolean>(false);
+
+    const [winner, setWinner] = useState<PositionType>(null);
+
     const play = (column: number, row: number): void => {
         const result = addMarkAt(board, column, row, turn);
         if (result.moved) {
             setTurn(toggleMove(turn));
             setBoard([...result.board]);
+            setIsBoardFull(checkBoardFull(result.board, BOARD_SIZE));
+
+            if (turn !== null && checkWin(result.board, BOARD_SIZE, column, row, turn)) {
+                setWinner(turn);
+            }
         }
     };
 

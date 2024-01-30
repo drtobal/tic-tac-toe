@@ -1,5 +1,5 @@
-import { BOARD_SIZE, CPU_MOVE_VALUE } from "./constants";
-import { Board, BoardMove, Coords2D, CPUMove, MoveScore, PositionType, Turn } from "./types";
+import { BOARD_SIZE } from "./constants";
+import { Board, BoardMove, Coords2D, CPUMove, PositionType, Turn } from "./types";
 
 export const deepClone = <T>(obj: T, _structuredClone: (d: T) => T = structuredClone): T => {
     if (typeof _structuredClone === 'function') {
@@ -79,53 +79,53 @@ export const checkWin = (board: Board, size: number, column: number, row: number
     return false;
 }
 
-export const minimax = (board: Board, turn: Turn, spot: Coords2D, size: number): number => {
-    const clone = deepClone(board);
-    clone[spot.x][spot.y] = turn;
-    if (checkWin(clone, size, spot.x, spot.y, turn)) return 1;
+export const cpuPlay = (board: Board, turn: Turn, cpuTurn: Turn, size: number, coords: Coords2D = { x: 0, y: 0 }): CPUMove => {
+    const slots = availableSlots(board, size);
 
-    const otherTurn = toggleTurn(turn);
-    clone[spot.x][spot.y] = otherTurn;
-    if (checkWin(clone, size, spot.x, spot.y, otherTurn)) return -1;
-    return 0;
-}
+    if (checkWin(board, size, coords.x, coords.y, toggleTurn(cpuTurn))) return { score: -10, coords };
+    if (checkWin(board, size, coords.x, coords.y, cpuTurn)) return { score: 10, coords };
+    if (slots.length === 0) return { score: 0, coords }; // limit reached
 
-export const cpuPlay = (board: Board, turn: Turn, size: number): CPUMove => {
-    const spots = availableSpots(board, size);
-    const spotsLength = spots.length;
-    if (spotsLength === 0) return { board, winner: false }; // can't play 
+    const slotsLength = slots.length;
+    const moves: CPUMove[] = [];
 
-    const moves: MoveScore[] = [];
-
-    for (let x = 0; x < spotsLength; x++) {
-        const score = minimax(board, turn, spots[x], size);
-        console.log(score);
-        if (score !== 0) { // winner or looser move
-            board[spots[x].x][spots[x].y] = turn;
-            return { board, winner: score > 0 };
-        }
-        moves.push({ score, position: spots[x] });
+    for (let x = 0; x < slotsLength; x++) {
+        board[slots[x].x][slots[x].y] = turn;
+        moves.push({ score: cpuPlay(board, toggleTurn(turn), cpuTurn, size, slots[x]).score, coords: slots[x]});
+        board[slots[x].x][slots[x].y] = null;
     }
 
     const movesLength = moves.length;
-    for (let x = 0; x < movesLength; x++) {
-        if (moves[x].score === 0) { // just don't let user win
-            board[moves[x].position.x][moves[x].position.y] = turn;
-            return { board, winner: false };
+    let bestMove: number = -1;
+    if (turn === cpuTurn) {
+        let bestScore = -10000;
+        for (let x = 0; x < movesLength; x++) {
+            if (moves[x].score > bestScore) {
+                bestScore = moves[x].score;
+                bestMove = x;
+            }
         }
-    }
-
-    return { board, winner: false };
-};
-
-export const availableSpots = (board: Board, size: number): Coords2D[] => {
-    const spots: Coords2D[] = [];
-    for (let x = 0; x < size; x++) {
-        for (let y = 0; y < size; y++) {
-            if (board[x][y] === null) {
-                spots.push({ x, y });
+    } else {
+        let bestScore = 10000;
+        for (let x = 0; x < movesLength; x++) {
+            if (moves[x].score < bestScore) {
+                bestScore = moves[x].score;
+                bestMove = x;
             }
         }
     }
-    return spots;
+
+    return moves[bestMove];
+}
+
+export const availableSlots = (board: Board, size: number): Coords2D[] => {
+    const slots: Coords2D[] = [];
+    for (let x = 0; x < size; x++) {
+        for (let y = 0; y < size; y++) {
+            if (board[x][y] === null) {
+                slots.push({ x, y });
+            }
+        }
+    }
+    return slots;
 }

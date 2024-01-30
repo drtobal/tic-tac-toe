@@ -1,4 +1,4 @@
-export type Turn = 0 | 1;
+export type Turn = 0 | 1; // zero is x, 1 is o
 
 export type PositionType = Turn | null;
 
@@ -12,11 +12,6 @@ export interface BoardMove {
 }
 
 export type CPUMove = {
-    board: Board;
-    winner: boolean;
-};
-
-export type MoveScore = {
-    position: Coords2D;
     score: number;
+    coords: Coords2D | null;
 };

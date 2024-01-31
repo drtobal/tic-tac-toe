@@ -1,11 +1,11 @@
-import { PositionType } from "@/types";
+import { SlotValue } from "@/types";
 
 type Props = {
-    value: PositionType,
+    value: SlotValue,
 };
 
 export default function Slot({ value }: Props) {
-    const printMark = (mark: PositionType) => {
+    const printMark = (mark: SlotValue) => {
         switch (mark) {
             case 0:
                 return <div className="mark-x">

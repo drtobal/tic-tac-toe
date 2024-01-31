@@ -1,12 +1,14 @@
+/** object with open properties */
 export type AnyObject = {
     [prop: string]: any;
 }
 
+/** plyer's turn value */
 export type Turn = 0 | 1; // zero is x, 1 is o
 
-export type PositionType = Turn | null;
+export type SlotValue = Turn | null;
 
-export type Board = PositionType[][];
+export type Board = SlotValue[][];
 
 export type Coords2D = { x: number, y: number };
 

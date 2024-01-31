@@ -1,6 +1,6 @@
 import { BOARD_SIZE, START_PLAYER, TurnList } from "@/constants";
 import { addMarkAt, checkBoardFull, checkWin, cpuPlay, generateBoard, getPlayModeName, getWinnerText, toggleTurn } from "@/methods";
-import { Board, PositionType, Turn, WinData } from "@/types";
+import { Board, SlotValue, Turn, WinData } from "@/types";
 import { useState } from "react";
 import Slot from './slot';
 import Header from './header';
@@ -90,7 +90,7 @@ export default function Board() {
         return null;
     };
 
-    const endGame = (winner: PositionType, isBoardFull: boolean) => {
+    const endGame = (winner: SlotValue, isBoardFull: boolean) => {
         const text = getWinnerText(winner, isBoardFull);
         if (text) {
             return <p className="end-text text-center my-4">{text}</p>;

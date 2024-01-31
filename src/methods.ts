@@ -1,5 +1,5 @@
 import { BOARD_SIZE, TurnList } from "./constants";
-import { AnyObject, Board, BoardMove, Coords2D, CPUMove, PositionType, Turn, WinData } from "./types";
+import { AnyObject, Board, BoardMove, Coords2D, CPUMove, SlotValue, Turn, WinData } from "./types";
 
 export const deepClone = <T>(obj: T): T => {
     if (typeof window === 'undefined' && (window as AnyObject).structuredClone) {
@@ -11,7 +11,7 @@ export const deepClone = <T>(obj: T): T => {
 export const generateBoard = (size: number): Board => {
     const board: Board = [];
     for (let x = 0; x < size; x++) {
-        const column: PositionType[] = [];
+        const column: SlotValue[] = [];
         for (let y = 0; y < size; y++) {
             column.push(null);
         }
@@ -141,7 +141,7 @@ export const getPlayModeName = (mode: 'a' | 'b' | 'c'): string => {
     }
 }
 
-export const getWinnerText = (winner: PositionType, isBoardFull: boolean): string | null => {
+export const getWinnerText = (winner: SlotValue, isBoardFull: boolean): string | null => {
     if (winner === TurnList.x) return 'Player X wins';
     if (winner === TurnList.o) return 'Player O wins';
     if (isBoardFull) return 'Draw game';

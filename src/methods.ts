@@ -1,5 +1,5 @@
-import { BOARD_SIZE } from "./constants";
-import { Board, BoardMove, Coords2D, CPUMove, PositionType, Turn } from "./types";
+import { BOARD_SIZE, TurnList } from "./constants";
+import { Board, BoardMove, Coords2D, CPUMove, PositionType, Turn, WinData } from "./types";
 
 export const deepClone = <T>(obj: T, _structuredClone: (d: T) => T = structuredClone): T => {
     if (typeof _structuredClone === 'function') {
@@ -20,17 +20,17 @@ export const generateBoard = (size: number): Board => {
     return board;
 };
 
-export const addMarkAt = (board: Board, column: number, row: number, turn: Turn): BoardMove => {
-    if (column < 0 && row < 0 && column >= BOARD_SIZE && row >= BOARD_SIZE) { // invalid coord
+export const addMarkAt = (board: Board, coords: Coords2D, turn: Turn): BoardMove => {
+    if (coords.x < 0 && coords.y < 0 && coords.x >= BOARD_SIZE && coords.y >= BOARD_SIZE) { // invalid coord
         return { board, moved: false };
     }
 
-    const value = board[column][row];
+    const value = board[coords.x][coords.y];
     if (value !== null) { // already has a value
         return { board, moved: false };
     }
 
-    board[column][row] = turn;
+    board[coords.x][coords.y] = turn;
     return { board, moved: true };
 }
 
@@ -39,7 +39,7 @@ export const toggleTurn = (turn: Turn): Turn => turn === 1 ? 0 : 1;
 export const checkBoardFull = (board: Board, size: number): boolean => {
     for (let x = 0; x < size; x++) {
         for (let y = 0; y < size; y++) {
-            if (board[x][y] !== null) {
+            if (board[x][y] === null) {
                 return false;
             }
         }
@@ -47,43 +47,43 @@ export const checkBoardFull = (board: Board, size: number): boolean => {
     return true;
 }
 
-export const checkWin = (board: Board, size: number, column: number, row: number, turn: Turn): boolean => {
+export const checkWin = (board: Board, size: number, coords: Coords2D, turn: Turn): WinData | null => {
     // check col
     for (let x = 0; x < size; x++) {
-        if (board[column][x] != turn) break;
-        if (x === size - 1) return true;
+        if (board[coords.x][x] != turn) break;
+        if (x === size - 1) return { type: 'column', coords: { x: coords.x, y: x }, turn };
     }
 
     // check row
     for (let x = 0; x < size; x++) {
-        if (board[x][row] !== turn) break;
-        if (x === size - 1) return true;
+        if (board[x][coords.y] !== turn) break;
+        if (x === size - 1) return { type: 'row', coords: { x: x, y: coords.y }, turn };
     }
 
     // check diagonal
-    if (column === row) { // addind mark in diagonal
+    if (coords.x === coords.y) { // addind mark in diagonal
         for (let x = 0; x < size; x++) {
             if (board[x][x] !== turn) break;
-            if (x === size - 1) return true;
+            if (x === size - 1) return { type: 'diagonal', coords: { x: 0, y: 0 }, turn };
         }
     }
 
     // check anti diagonal
-    if (column + row === size - 1) {
+    if (coords.x + coords.y === size - 1) {
         for (let x = 0; x < size; x++) {
             if (board[x][size - 1 - x] !== turn) break;
-            if (x === size - 1) return true;
+            if (x === size - 1) return { type: 'reverse-diagonal', coords: { x: 0, y: size }, turn };
         }
     }
 
-    return false;
+    return null;
 }
 
 export const cpuPlay = (board: Board, turn: Turn, cpuTurn: Turn, size: number, coords: Coords2D = { x: 0, y: 0 }): CPUMove => {
     const slots = availableSlots(board, size);
 
-    if (checkWin(board, size, coords.x, coords.y, toggleTurn(cpuTurn))) return { score: -10, coords };
-    if (checkWin(board, size, coords.x, coords.y, cpuTurn)) return { score: 10, coords };
+    if (checkWin(board, size, coords, toggleTurn(cpuTurn))) return { score: -10, coords };
+    if (checkWin(board, size, coords, cpuTurn)) return { score: 10, coords };
     if (slots.length === 0) return { score: 0, coords }; // limit reached
 
     const slotsLength = slots.length;
@@ -91,7 +91,7 @@ export const cpuPlay = (board: Board, turn: Turn, cpuTurn: Turn, size: number, c
 
     for (let x = 0; x < slotsLength; x++) {
         board[slots[x].x][slots[x].y] = turn;
-        moves.push({ score: cpuPlay(board, toggleTurn(turn), cpuTurn, size, slots[x]).score, coords: slots[x]});
+        moves.push({ score: cpuPlay(board, toggleTurn(turn), cpuTurn, size, slots[x]).score, coords: slots[x] });
         board[slots[x].x][slots[x].y] = null;
     }
 
@@ -128,4 +128,23 @@ export const availableSlots = (board: Board, size: number): Coords2D[] => {
         }
     }
     return slots;
+}
+
+export const getPlayModeName = (mode: 'a' | 'b' | 'c'): string => {
+    switch (mode) {
+        case 'a':
+            return 'Playing vs CPU as X';
+        case 'b':
+            return 'Playing vs CPU as O';
+        case 'c':
+            return 'Player vs Player';
+    }
+}
+
+export const getWinnerText = (winner: PositionType, isBoardFull: boolean): string | null => {
+    if (winner === TurnList.x) return 'Player X wins';
+    if (winner === TurnList.o) return 'Player O wins';
+    if (isBoardFull) return 'Draw game';
+
+    return null;
 }

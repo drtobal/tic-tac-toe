@@ -1,9 +1,9 @@
 import { BOARD_SIZE, TurnList } from "./constants";
-import { Board, BoardMove, Coords2D, CPUMove, PositionType, Turn, WinData } from "./types";
+import { AnyObject, Board, BoardMove, Coords2D, CPUMove, PositionType, Turn, WinData } from "./types";
 
-export const deepClone = <T>(obj: T, _structuredClone: (d: T) => T = structuredClone): T => {
-    if (typeof _structuredClone === 'function') {
-        return structuredClone(obj);
+export const deepClone = <T>(obj: T): T => {
+    if (typeof window === 'undefined' && (window as AnyObject).structuredClone) {
+        return (window as AnyObject).structuredClone(obj);
     }
     return JSON.parse(JSON.stringify(obj));
 }
@@ -51,13 +51,13 @@ export const checkWin = (board: Board, size: number, coords: Coords2D, turn: Tur
     // check col
     for (let x = 0; x < size; x++) {
         if (board[coords.x][x] != turn) break;
-        if (x === size - 1) return { type: 'column', coords: { x: coords.x, y: x }, turn };
+        if (x === size - 1) return { type: 'column', coords: { x: coords.x, y: 0 }, turn };
     }
 
     // check row
     for (let x = 0; x < size; x++) {
         if (board[x][coords.y] !== turn) break;
-        if (x === size - 1) return { type: 'row', coords: { x: x, y: coords.y }, turn };
+        if (x === size - 1) return { type: 'row', coords: { x: 0, y: coords.y }, turn };
     }
 
     // check diagonal
@@ -72,7 +72,7 @@ export const checkWin = (board: Board, size: number, coords: Coords2D, turn: Tur
     if (coords.x + coords.y === size - 1) {
         for (let x = 0; x < size; x++) {
             if (board[x][size - 1 - x] !== turn) break;
-            if (x === size - 1) return { type: 'reverse-diagonal', coords: { x: 0, y: size }, turn };
+            if (x === size - 1) return { type: 'reverse-diagonal', coords: { x: 0, y: size - 1 }, turn };
         }
     }
 

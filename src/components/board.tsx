@@ -5,6 +5,7 @@ import { useState } from "react";
 import Slot from './slot';
 import Header from './header';
 import WinLine from './win-line';
+import Footer from './footer';
 
 /** this is the main component for the game, and page, includes header, footer and the game itself */
 export default function Board() {
@@ -117,7 +118,7 @@ export default function Board() {
         <>
             <Header cpuXClick={() => cpuXClick()} cpuOClick={() => cpuOClick()} twoPlayerClick={() => twoPlayerClick()} />
 
-            <div className="container mx-auto px-4">
+            <div className="container mx-auto px-4 p-b4">
                 <p className="text-center my-4">{playMode}</p>
 
                 <div className="board-container">
@@ -140,7 +141,9 @@ export default function Board() {
                 </div>
 
                 {gameOver(winData ? winData.turn : null, isBoardFull)}
+
             </div>
+            <Footer />
         </>
     );
 }

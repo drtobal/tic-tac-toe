@@ -1,9 +1,11 @@
+/** props for header component */
 type Props = {
     cpuXClick: () => void;
     cpuOClick: () => void;
     twoPlayerClick: () => void;
 };
 
+/** just print buttons for create a game with different modes */
 export default function Header(props: Props) {
     return <div className="container mx-auto px-4 flex flex-row justify-center items-center py-4 gap-4">
         <button onClick={props.cpuXClick} className="bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded">

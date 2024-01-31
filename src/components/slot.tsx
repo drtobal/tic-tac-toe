@@ -1,9 +1,11 @@
 import { SlotValue } from "@/types";
 
+/** props for Slot component */
 type Props = {
     value: SlotValue,
 };
 
+/** represents a slot of the board, draw a symbol X or O for each turn with animation */
 export default function Slot({ value }: Props) {
     const printMark = (mark: SlotValue) => {
         switch (mark) {

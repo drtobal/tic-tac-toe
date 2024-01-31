@@ -6,19 +6,27 @@ import Slot from './slot';
 import Header from './header';
 import WinLine from './win-line';
 
+/** this is the main component for the game, and page, includes header, footer and the game itself */
 export default function Board() {
+    /** currently playing game board */
     const [board, setBoard] = useState<Board>(generateBoard(BOARD_SIZE));
 
+    /** check if game board is already full, if there is no winner, it is a draw game */
     const [isBoardFull, setIsBoardFull] = useState<boolean>(false);
 
+    /** turn used for human player */
     const [userPlayer, setUserPlayer] = useState<Turn>(START_PLAYER);
 
+    /** enable cpu playing */
     const [isCpuPlaying, setIsCpuPlaying] = useState<boolean>(true);
 
+    /** type of game playing */
     const [playMode, setPlayMode] = useState<string>(getPlayModeName('a'));
 
+    /** data for winner, useful to draw the win line */
     const [winData, setWinData] = useState<WinData | null>(null);
 
+    /** starts a new game against CPU, player plays with X */
     const cpuXClick = () => {
         startNewGame();
         setUserPlayer(TurnList.x);
@@ -26,6 +34,7 @@ export default function Board() {
         setPlayMode(getPlayModeName('a'));
     };
 
+    /** starts a new game against CPU, player plays with O */
     const cpuOClick = () => {
         const board = generateBoard(BOARD_SIZE);
         const move = cpuPlay(board, TurnList.x, TurnList.x, BOARD_SIZE);
@@ -38,12 +47,14 @@ export default function Board() {
         }
     };
 
+    /** starts a new game against CPU, player plays with X both marks */
     const twoPlayerClick = () => {
         startNewGame();
         setIsCpuPlaying(false);
         setPlayMode(getPlayModeName('c'));
     };
 
+    /** reset all data */
     const startNewGame = (board: Board = generateBoard(BOARD_SIZE)) => {
         setUserPlayer(START_PLAYER);
         setBoard(board);
@@ -51,6 +62,7 @@ export default function Board() {
         setWinData(null);
     };
 
+    /** play a turn as CPU */
     const playCpu = (turn: Turn): null => {
         if (isBoardFull || winData !== null || turn === userPlayer) return null;
 
@@ -66,6 +78,7 @@ export default function Board() {
         return null;
     }
 
+    /** play a turn as player */
     const play = (x: number, y: number): null => {
         if (isBoardFull || winData !== null) return null;
 
@@ -90,7 +103,8 @@ export default function Board() {
         return null;
     };
 
-    const endGame = (winner: SlotValue, isBoardFull: boolean) => {
+    /** returns the game over message */
+    const gameOver = (winner: SlotValue, isBoardFull: boolean) => {
         const text = getWinnerText(winner, isBoardFull);
         if (text) {
             return <p className="end-text text-center my-4">{text}</p>;
@@ -125,7 +139,7 @@ export default function Board() {
                     {winData !== null ? <WinLine winData={winData} board={board} /> : null}
                 </div>
 
-                {endGame(winData ? winData.turn : null, isBoardFull)}
+                {gameOver(winData ? winData.turn : null, isBoardFull)}
             </div>
         </>
     );

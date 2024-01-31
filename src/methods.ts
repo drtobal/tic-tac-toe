@@ -1,6 +1,7 @@
 import { BOARD_SIZE, TurnList } from "./constants";
-import { AnyObject, Board, BoardMove, Coords2D, CPUMove, SlotValue, Turn, WinData } from "./types";
+import { AnyObject, Board, BoardMove, Coords2D, CPUMove, GameMode, SlotValue, Turn, WinData } from "./types";
 
+/** deep clone of a object */
 export const deepClone = <T>(obj: T): T => {
     if (typeof window === 'undefined' && (window as AnyObject).structuredClone) {
         return (window as AnyObject).structuredClone(obj);
@@ -8,6 +9,7 @@ export const deepClone = <T>(obj: T): T => {
     return JSON.parse(JSON.stringify(obj));
 }
 
+/** create a new board of {size}x{size}, game boards always are squares */
 export const generateBoard = (size: number): Board => {
     const board: Board = [];
     for (let x = 0; x < size; x++) {
@@ -20,6 +22,7 @@ export const generateBoard = (size: number): Board => {
     return board;
 };
 
+/** add a turn mark at given coords, if that slot/cell is free */
 export const addMarkAt = (board: Board, coords: Coords2D, turn: Turn): BoardMove => {
     if (coords.x < 0 && coords.y < 0 && coords.x >= BOARD_SIZE && coords.y >= BOARD_SIZE) { // invalid coord
         return { board, moved: false };
@@ -34,8 +37,10 @@ export const addMarkAt = (board: Board, coords: Coords2D, turn: Turn): BoardMove
     return { board, moved: true };
 }
 
+/** change turn value */
 export const toggleTurn = (turn: Turn): Turn => turn === 1 ? 0 : 1;
 
+/** check if the given board has no free slots */
 export const checkBoardFull = (board: Board, size: number): boolean => {
     for (let x = 0; x < size; x++) {
         for (let y = 0; y < size; y++) {
@@ -47,6 +52,10 @@ export const checkBoardFull = (board: Board, size: number): boolean => {
     return true;
 }
 
+/**
+ * check if there is a winner given last turn coords, this is to check only lines over those coords,
+ * this method does not check all win combinations for the entire board
+ * */
 export const checkWin = (board: Board, size: number, coords: Coords2D, turn: Turn): WinData | null => {
     // check col
     for (let x = 0; x < size; x++) {
@@ -79,6 +88,10 @@ export const checkWin = (board: Board, size: number, coords: Coords2D, turn: Tur
     return null;
 }
 
+/**
+ * minimax algorithm implementation to calculate cpu's best move be careful, this method has unlimited depth (by now) and could be
+ * way too slow for big tables, if you are experimenting with tables over 3x3, maybe set a depth control should be better
+ * */
 export const cpuPlay = (board: Board, turn: Turn, cpuTurn: Turn, size: number, coords: Coords2D = { x: 0, y: 0 }): CPUMove => {
     const slots = availableSlots(board, size);
 
@@ -118,6 +131,7 @@ export const cpuPlay = (board: Board, turn: Turn, cpuTurn: Turn, size: number, c
     return moves[bestMove];
 }
 
+/** reuturn coords for board available/free slots/cells */
 export const availableSlots = (board: Board, size: number): Coords2D[] => {
     const slots: Coords2D[] = [];
     for (let x = 0; x < size; x++) {
@@ -130,7 +144,8 @@ export const availableSlots = (board: Board, size: number): Coords2D[] => {
     return slots;
 }
 
-export const getPlayModeName = (mode: 'a' | 'b' | 'c'): string => {
+/** returns the label for game mode */
+export const getPlayModeName = (mode: GameMode): string => {
     switch (mode) {
         case 'a':
             return 'Playing vs CPU as X';
@@ -141,6 +156,7 @@ export const getPlayModeName = (mode: 'a' | 'b' | 'c'): string => {
     }
 }
 
+/** returns the winner message label */
 export const getWinnerText = (winner: SlotValue, isBoardFull: boolean): string | null => {
     if (winner === TurnList.x) return 'Player X wins';
     if (winner === TurnList.o) return 'Player O wins';
